@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MCsim_test1", "MCsim_test1\MCsim_test1.vcxproj", "{FBCF79E4-90B6-4B4D-B2EB-9ECD12297AC4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Eigen_test", "Eigen_test\Eigen_test.vcxproj", "{4D3A3106-8919-4864-A194-F8F95FD0531F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{FBCF79E4-90B6-4B4D-B2EB-9ECD12297AC4}.Debug|Win32.Build.0 = Debug|Win32
 		{FBCF79E4-90B6-4B4D-B2EB-9ECD12297AC4}.Release|Win32.ActiveCfg = Release|Win32
 		{FBCF79E4-90B6-4B4D-B2EB-9ECD12297AC4}.Release|Win32.Build.0 = Release|Win32
+		{4D3A3106-8919-4864-A194-F8F95FD0531F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4D3A3106-8919-4864-A194-F8F95FD0531F}.Debug|Win32.Build.0 = Debug|Win32
+		{4D3A3106-8919-4864-A194-F8F95FD0531F}.Release|Win32.ActiveCfg = Release|Win32
+		{4D3A3106-8919-4864-A194-F8F95FD0531F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
