@@ -2,30 +2,43 @@
 #define _MC_
 
 #include <Eigen/Dense>
-using namespace Eigen;
-
+#include <vector>
+//using namespace Eigen;
 #define MC_G 9.80665
 
-class MCBlock{
+#define USE_STL_VECTOR
+
+namespace MC{ // NAMESPACE MC
+
+
+using Matrix12d = Eigen::Matrix<double, 12, 12>;
+using Vector12d = Eigen::Matrix<double, 12, 1>;
+
+
+class Block{
 public:
+	Block();
+	Block(double m);
 	double mass;
-	Matrix3d J; //慣性テンソル
-	Vector3d c_o_g; //構成時重心座標
-	Vector3d r; //重心からの距離
-	virtual void calc_m_o_i(); //慣性テンソルの計算
+	Eigen::Matrix3d J; //慣性テンソル
+	Eigen::Vector3d c_o_g; //構成時重心座標
+	Eigen::Vector3d r; //全体重心からの距離
+	virtual void calc_m_o_i() = 0; //慣性テンソルの計算
 };
 
 
-class MCCylinder : public MCBlock{
+class Cylinder : public Block{
 public:
-	double r;
+	Cylinder(double m, double r, double h);
+	double R;
 	double h;
 	void calc_m_o_i();
 };
 
 
-class MCCuboid : public MCBlock{
+class Cuboid : public Block{
 public:
+	Cuboid(double m, double w, double h, double d);
 	double w;
 	double h;
 	double d;
@@ -33,45 +46,96 @@ public:
 };
 
 
-class MCMotorPlop : public MCBlock{
+class MotorPlop : public Cylinder{
 public:
-	double R;
-	double h;
+	MotorPlop(double m, double R, double h, double c_t, double c_q);
 	double c_t;
 	double c_q;
-	void calc_m_o_i();
-	double get_f_thrust();
-	double get_tau_reaction();
+	double w_m; //ローター角速度
+	Matrix3d Jr; //回転部慣性テンソル
+	Eigen::Vector3d get_f(); //スラスト
+	Eigen::Vector3d get_tau(); //トルク
+	Eigen::Vector3d get_l(); //角運動量
 };
 
 
-class MC{
+class Core{
 public:
-	Vector3d x;
-	Vector3d u;
-	double m;
-	Matrix3d J; 
-	Matrix<double, 12, 12> Z;
-	
-	MCMotorPlop* motorplops; //モーター部配列先頭アドレス
-	unsigned int n_o_m;      //モーター個数
-	double sump;
 
-	void update();
+	Core();
+	Core(
+		const Eigen::Matrix3d &tj, const double &m, const double &dt,
+		MotorPlop* mps, const unsigned int &nom,
+		const Eigen::Vector3d &v_b0, const Eigen::Vector3d &w_b0,
+		const Eigen::Vector3d &x_e0, const Eigen::Vector3d &phi_e0
+		);
+
+	Core(
+		const Eigen::Matrix3d &tj, const double &m, const double &dt,
+		const std::vector<MotorPlop*> &mplps,
+		const Eigen::Vector3d &v_b0, const Eigen::Vector3d &w_b0,
+		const Eigen::Vector3d &x_e0, const Eigen::Vector3d &phi_e0
+		);
+
+	Vector12d x;
+	Vector12d u;
+	double m;
+	Eigen::Matrix3d J;
+	Matrix12d Z;
+
+	Vector12d k1, k2, k3, k4;
+	double dt, dt2, dt6;
+	
+	MotorPlop* motorplops; //モーター部配列先頭アドレス
+	unsigned int n_o_m;      //モーター個数
+
+	std::vector<MC::MotorPlop*> mtrplps;
+	
+	void update(); //1ステップ前進積分　RK4
+
+	Vector12d get_state_vector(); //状態ベクトル
+	Matrix12d get_state_matrix(); //状態行列
 
 private:
-	void update_Z();
-	Matrix<double, 12, 12> mk_Z(const Vector3d &x);  //状態ベクトルによりZを生成
-	Vector3d mk_u11(const Vector3d &x); //状態ベクトルによりU11を生成
-	Vector3d mk_u12(const Vector3d &x); //U12生成
-	Vector3d mk_u2(const Vector3d &x); //U2生成
-	Matrix3d mk_sk(const Vector3d &v); //外積マトリクス
-	Matrix3d mk_B_mat(const Vector3d &x, const Matrix3d &Jb, const double &sum_p); //Bマトリックスの生成
-	Matrix3d mk_E_mat(const Vector3d &x); //回転行列の生成
-	Matrix3d mk_D_mat(const Vector3d &x); //角速度用回転行例角生成
+	Matrix12d mk_Z(const Vector12d &tx);  //状態ベクトルによりZを生成
+	Eigen::Vector3d mk_u11(const Vector12d &tx); //状態ベクトルによりU11を生成
+	Eigen::Vector3d mk_u12(); //U12生成
+	Eigen::Vector3d mk_u2(); //U2生成
+	Vector12d mk_u(const Vector12d &tx); //U生成 U = t[U11 + U12, U2, 0, 0]
+	Eigen::Matrix3d mk_sk(const Eigen::Vector3d &v); //外積マトリクス
+	Eigen::Matrix3d mk_B_mat(const Vector12d &tx, const Eigen::Matrix3d &Jb); //Bマトリックスの生成
+	Eigen::Matrix3d mk_E_mat(const Vector12d &tx); //回転行列の生成
+	Eigen::Matrix3d mk_D_mat(const Vector12d &tx); //角速度用回転行例角生成
+};
+
+
+class Generator{
+public:
+	Generator();
+
+	void add(MC::Block *blk);
+	void add(MC::MotorPlop *mp);
+	MC::Core generate_core();
+
+	double dt;
+
+private:
+
+	MC::Block* blocks; //構造材配列　先頭アドレス
+	MC::MotorPlop* motorplops; //モーター/プロペラ配列　先頭アドレス
+	unsigned int mob; //構造材個数
+	unsigned int mom; //モーター/プロペラ個数
+
+	std::vector<MC::MotorPlop*> mtrplps;
+	std::vector<MC::Block*> blks;
 
 };
 
+
+
+
+
+} // NAMESPACE MC
 
 #endif // !_MC_
 

@@ -70,7 +70,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MC\MC.cpp" />
+    <ClCompile Include="MC\MC_core.cpp" />
+    <ClCompile Include="MC\MC_components.cpp" />
+    <ClCompile Include="MC\MC_generator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MC\MC.hpp" />
