@@ -80,7 +80,7 @@ MC::Core MC::Generator::generate_core(){
 		J_sum = (*itr)->J + T * (*itr)->r.dot(((*itr)->r));
 	}
 
-	return Core(J_sum, m_sum, dt, mtrplps, vb0, wb0, xe0, phie0);
+	return Core(J_sum, m_sum, dt, mtrplps, blks, vb0, wb0, xe0, phie0);
 }
 
 

@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <vector>
+#include <string>
 //using namespace Eigen;
 #define MC_G 9.80665
 
@@ -14,6 +15,11 @@ namespace MC{ // NAMESPACE MC
 using Matrix12d = Eigen::Matrix<double, 12, 12>;
 using Vector12d = Eigen::Matrix<double, 12, 1>;
 
+static const unsigned char ID_NONE      = 0x00; //設定なし
+static const unsigned char ID_CYLINDER  = 0x01; //円柱
+static const unsigned char ID_CUBOID    = 0x02; //直方体
+static const unsigned char ID_COMPONENT = 0x03; //STLファイルにより形状を指定
+
 
 class Block{
 public:
@@ -24,6 +30,7 @@ public:
 	Eigen::Vector3d c_o_g; //構成時重心座標
 	Eigen::Vector3d r; //全体重心からの距離
 	virtual void calc_m_o_i() = 0; //慣性テンソルの計算
+	unsigned char id; //形状ID
 };
 
 
@@ -45,6 +52,23 @@ public:
 	void calc_m_o_i();
 };
 
+//モデル描画にSTLファイルを使用する
+class StLComponent : public Block{
+public:
+	StLComponent();
+	StLComponent(const std::string &p2stl);
+	StLComponent(const std::string &p2stl, const Eigen::Matrix3d &_J, const Eigen::Vector3d &_c_o_g);
+	StLComponent(const std::string &p2stl, const Eigen::Matrix3d &_J, const Eigen::Vector3d &_c_o_g,
+				const Eigen::Matrix3d &m_att);
+
+	void set_attitude(Eigen::Matrix3d m_att);
+	void set_path_to_stl(std::string p2stl);
+
+private:
+	Eigen::Matrix3d mat_attitude;
+	std::string path_to_stl;
+};
+
 
 class MotorPlop : public Cylinder{
 public:
@@ -58,6 +82,22 @@ public:
 	Eigen::Vector3d get_l(); //角運動量
 };
 
+//モーター描画にSTLファイルを使用する
+class StLMotorPlop : public StLComponent{
+public:
+	StLMotorPlop(double &_c_t, double &_c_q, Eigen::Matrix3d &_Jr);
+	StLMotorPlop(double &_c_t, double &_c_q, Eigen::Matrix3d &_Jr,
+					const std::string &p2stl, const Eigen::Matrix3d &_J, 
+					const Eigen::Vector3d &_c_o_g, const Eigen::Matrix3d &m_att);
+	double c_t;
+	double c_q;
+	double w_m; //ローター角速度
+	Eigen::Matrix3d Jr; //回転部慣性テンソル
+	Eigen::Vector3d get_f(); //スラスト
+	Eigen::Vector3d get_tau(); //トルク
+	Eigen::Vector3d get_l(); //角運動量
+
+};
 
 class Core{
 public:
@@ -72,7 +112,7 @@ public:
 
 	Core(
 		const Eigen::Matrix3d &tj, const double &m, const double &dt,
-		const std::vector<MotorPlop*> &mplps,
+		const std::vector<MotorPlop*> &mplps, const std::vector<Block*> &blks,
 		const Eigen::Vector3d &v_b0, const Eigen::Vector3d &w_b0,
 		const Eigen::Vector3d &x_e0, const Eigen::Vector3d &phi_e0
 		);
@@ -90,7 +130,8 @@ public:
 	MotorPlop* motorplops; //モーター部配列先頭アドレス
 	unsigned int n_o_m;      //モーター個数
 
-	std::vector<MC::MotorPlop*> mtrplps;
+	std::vector<MC::MotorPlop*> mtrplps; //モーター／プロペラモデル
+	std::vector<MC::Block*> components; //機体構造材
 	
 	void update(); //1ステップ前進積分　RK4
 

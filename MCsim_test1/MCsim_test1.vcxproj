@@ -39,10 +39,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\B4\Source\Repos\MCsim\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\B4\Source\Repos\MCsim\MCsim\MCsim_test1\Viewer;C:\Users\B4\Source\Repos\MCsim\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\B4\Source\Repos\MCsim\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\B4\Source\Repos\MCsim\MCsim\MCsim_test1\Viewer;C:\Users\B4\Source\Repos\MCsim\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -73,9 +73,13 @@
     <ClCompile Include="MC\MC_core.cpp" />
     <ClCompile Include="MC\MC_components.cpp" />
     <ClCompile Include="MC\MC_generator.cpp" />
+    <ClCompile Include="Viewer\MC_drawer.cpp" />
+    <ClCompile Include="Viewer\OpenGL_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MC\MC.hpp" />
+    <ClInclude Include="Viewer\MC_drawer.hpp" />
+    <ClInclude Include="Viewer\OpenGL_test.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

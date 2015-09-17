@@ -67,7 +67,7 @@ Core::Core(
 
 Core::Core(
 	const Eigen::Matrix3d &tj, const double &tm, const double &tdt,
-	const std::vector<MotorPlop*> &mplps,
+	const std::vector<MotorPlop*> &mplps, const std::vector<MC::Block*> &blks,
 	const Eigen::Vector3d &v_b0, const Eigen::Vector3d &w_b0,
 	const Eigen::Vector3d &x_e0, const Eigen::Vector3d &phi_e0
 	)
@@ -85,7 +85,8 @@ Core::Core(
 	dt(0),
 	dt2(0),
 	dt6(0),
-	mtrplps(mplps)
+	mtrplps(mplps),
+	components(blks)
 {
 	J = tj;
 	m = tm;
