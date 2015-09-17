@@ -52,7 +52,7 @@ public:
 	double c_t;
 	double c_q;
 	double w_m; //ローター角速度
-	Matrix3d Jr; //回転部慣性テンソル
+	Eigen::Matrix3d Jr; //回転部慣性テンソル
 	Eigen::Vector3d get_f(); //スラスト
 	Eigen::Vector3d get_tau(); //トルク
 	Eigen::Vector3d get_l(); //角運動量
@@ -78,6 +78,7 @@ public:
 		);
 
 	Vector12d x;
+	Vector12d x_prev;
 	Vector12d u;
 	double m;
 	Eigen::Matrix3d J;
@@ -115,9 +116,16 @@ public:
 
 	void add(MC::Block *blk);
 	void add(MC::MotorPlop *mp);
-	MC::Core generate_core();
 
-	double dt;
+	void set_initialstate_vb(Eigen::Vector3d &tx);
+	void set_initialstate_wb(Eigen::Vector3d &tx);
+	void set_initialstate_xe(Eigen::Vector3d &tx);
+	void set_initialstate_phie(Eigen::Vector3d &tx);
+
+	void set_dt(double dt);
+	
+	
+	MC::Core generate_core();
 
 private:
 
@@ -126,8 +134,12 @@ private:
 	unsigned int mob; //構造材個数
 	unsigned int mom; //モーター/プロペラ個数
 
+	Eigen::Vector3d vb0, wb0, xe0, phie0;
+
 	std::vector<MC::MotorPlop*> mtrplps;
 	std::vector<MC::Block*> blks;
+
+	double dt;
 
 };
 

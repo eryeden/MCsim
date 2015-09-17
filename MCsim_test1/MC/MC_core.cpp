@@ -9,6 +9,7 @@ using namespace MC;
 Core::Core()
 	: 
 		x(Vector12d::Zero()),
+		x_prev(Vector12d::Zero()),
 		u(Vector12d::Zero()),
 		m(0),
 		J(Matrix3d::Zero()),
@@ -34,6 +35,7 @@ Core::Core(
 	)
 	:
 		x(Vector12d::Zero()),
+		x_prev(Vector12d::Zero()),
 		u(Vector12d::Zero()),
 		m(0),
 		J(Matrix3d::Zero()),
@@ -71,6 +73,7 @@ Core::Core(
 	)
 	:
 	x(Vector12d::Zero()),
+	x_prev(Vector12d::Zero()),
 	u(Vector12d::Zero()),
 	m(0),
 	J(Matrix3d::Zero()),
@@ -158,7 +161,7 @@ Vector3d Core::mk_u2(){
 }
 
 Vector12d Core::mk_u(const Vector12d &tx){
-	Vector12d u = MatrixXd::Zero(12, 1);
+	Vector12d u = Vector12d::Zero();
 	u.block<3, 1>(0, 0) = mk_u11(tx) + mk_u12();
 	u.block<3, 1>(3, 0) = mk_u2();
 	return u;
@@ -221,7 +224,7 @@ Matrix3d Core::mk_D_mat(const Vector12d &tx){
 
 //KR4を用いて1ステップ進める
 void Core::update(){
-	Vector12d tx = MatrixXd::Zero(12, 1);
+	Vector12d tx = Vector12d::Zero();
 
 	k1 = mk_Z(x) * x + mk_u(x);
 	tx = x + dt2 * k1;
@@ -232,8 +235,10 @@ void Core::update(){
 	k3 = mk_Z(tx) * tx + mk_u(tx);
 	tx = x + dt * k3;
 
-	k4 = mk_Z(tx) * tx + mk_u(tx);
+	Z = mk_Z(tx);
+	k4 = Z * tx + mk_u(tx);
 
+	x_prev = x;
 	x = x + dt6 * (k1 + 2.0 * (k2 + k3) + k4);
 }
 
