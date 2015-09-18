@@ -18,11 +18,19 @@ static void _key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 int main(){
-	//GLFW_run();
-	GLFWwindow *glwdw = NULL;
-	GLFW_initialize(&(glwdw), _error_callback, _key_callback);
-	GL_initialize(glwdw);
-	GL_run(glwdw);
-	GLFW_deinitialize(glwdw);
+	////GLFW_run();
+	//GLFWwindow *glwdw = NULL;
+	//GLFW_initialize(&(glwdw), _error_callback, _key_callback);
+	//GL_initialize(glwdw);
+	//GL_run(glwdw);
+	//GLFW_deinitialize(glwdw);
+
+	GLFW_test2 gt2;
+	gt2.initialize();
+
+	gt2.run();
+
+	gt2.join();
+
 }
 
